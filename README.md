@@ -1,101 +1,43 @@
-# Dependency Visualizer
 
-Инструмент визуализации графа зависимостей для менеджера пакетов.
+## Stage 2 — Dependency Data Collection
 
-## Вариант №17
+### Description
 
-### Этап 1. Минимальный прототип с конфигурацией
+The application retrieves package metadata from a Python package
+repository using its HTTP API.
 
-**Цель:** создание минимального CLI-приложения с возможностью настройки параметров через командную строку.
+It extracts and displays direct dependencies of the specified
+Python package.
 
-### Реализованные возможности
+### Implementation
 
-- Получение параметров из командной строки.
-- Проверка корректности введённых параметров.
-- Вывод конфигурации в формате «ключ — значение».
-- Обработка ошибок пользовательского ввода.
-- Поддержка тестового режима.
-- Поддержка настройки глубины анализа.
+- Uses the PyPI JSON API.
+- Uses only the Python standard library.
+- Retrieves metadata with urllib.
+- Parses JSON using json.
+- Extracts dependencies from info.requires_dist.
+- Handles HTTP, connection and JSON errors.
+- Does not install packages or use package managers.
 
-### Параметры командной строки
-
-| Параметр | Описание | По умолчанию |
-|---|---|---|
-| `--package` | Имя анализируемого пакета | Обязательный |
-| `--repo` | URL репозитория или путь к тестовому файлу | Обязательный |
-| `--test-mode` | Режим тестового репозитория (`true`/`false`) | `false` |
-| `--output` | Имя выходного PNG-файла | `graph.png` |
-| `--ascii` | Вывод зависимостей в формате ASCII-дерева | `false` |
-| `--max-depth` | Максимальная глубина анализа | `5` |
-
-### Структура проекта
-
-```text
-configuration-management_2/
-├── src/
-│   ├── __init__.py
-│   ├── main.py
-│   └── config/
-│       ├── __init__.py
-│       └── config.py
-├── tests/
-│   └── test_config.py
-├── scripts/
-│   └── demo_stage1.bat
-├── README.md
-├── .gitignore
-└── run.bat
-```
-
-### Требования
-
-- Windows
-- Python 3
-
-### Запуск приложения
-
-Откройте командную строку в корневой директории проекта.
-
-Пример обычного запуска:
+### Run
 
 ```cmd
 run.bat --package flask --repo https://pypi.org/pypi/flask/json
 ```
 
-Пример запуска со всеми параметрами:
-
-```cmd
-run.bat --package requests --repo https://pypi.org/pypi/requests/json --test-mode false --output requests.png --ascii --max-depth 3
-```
-
-### Примеры обработки ошибок
-
-Некорректная глубина анализа:
-
-```cmd
-run.bat --package flask --repo https://pypi.org/pypi/flask/json --max-depth -1
-```
-
-Некорректное имя выходного файла:
-
-```cmd
-run.bat --package flask --repo https://pypi.org/pypi/flask/json --output graph.txt
-```
-
-Некорректное имя пакета:
-
-```cmd
-run.bat --package "bad package!" --repo https://pypi.org/pypi/flask/json
-```
-
-### Запуск автоматических тестов
+### Run tests
 
 ```cmd
 py -m unittest discover -s tests -v
 ```
 
-### Статус проекта
+### Demo
 
-Реализован первый этап задания — минимальный CLI-прототип с конфигурацией и обработкой ошибок.
+```cmd
+scripts\demo_stage2.bat
+```
 
-Получение зависимостей пакетов и построение графа относятся к последующим этапам.
+### Project status
+
+- Stage 1: completed.
+- Stage 2: completed.
