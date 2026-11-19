@@ -1,43 +1,83 @@
+# Dependency Visualizer
 
-## Stage 2 — Dependency Data Collection
+Консольное приложение для получения информации о зависимостях Python-пакетов, построения графа зависимостей и выполнения его анализа.
 
-### Description
+Проект разработан в рамках курса «Конфигурационное управление».
 
-The application retrieves package metadata from a Python package
-repository using its HTTP API.
+**Вариант:** № 17  
+**Язык программирования:** Python  
+**Текущий этап:** 3 — Основные операции
 
-It extracts and displays direct dependencies of the specified
-Python package.
+## Реализованные этапы
 
-### Implementation
+### Этап 1. Минимальный CLI-прототип
 
-- Uses the PyPI JSON API.
-- Uses only the Python standard library.
-- Retrieves metadata with urllib.
-- Parses JSON using json.
-- Extracts dependencies from info.requires_dist.
-- Handles HTTP, connection and JSON errors.
-- Does not install packages or use package managers.
+Реализована обработка параметров командной строки:
 
-### Run
+- `--package` — имя анализируемого пакета;
+- `--repo` — URL репозитория или путь к тестовому файлу;
+- `--test-mode` — включение тестового режима;
+- `--output` — имя выходного PNG-файла;
+- `--ascii` — режим ASCII-вывода;
+- `--max-depth` — максимальная глубина анализа.
 
-```cmd
-run.bat --package flask --repo https://pypi.org/pypi/flask/json
-```
+Реализована проверка входных параметров и обработка некорректных значений.
 
-### Run tests
+### Этап 2. Сбор данных
 
-```cmd
-py -m unittest discover -s tests -v
-```
+Реализовано получение метаданных Python-пакетов из репозитория PyPI.
 
-### Demo
+Основные возможности:
 
-```cmd
-scripts\demo_stage2.bat
-```
+- получение метаданных через HTTP-запрос;
+- обработка JSON-ответа;
+- извлечение прямых зависимостей из `info.requires_dist`;
+- обработка HTTP-ошибок, ошибок подключения и некорректного JSON;
+- вывод прямых зависимостей на экран.
 
-### Project status
+Для получения и обработки данных используются только модули стандартной библиотеки Python.
 
-- Stage 1: completed.
-- Stage 2: completed.
+### Этап 3. Основные операции
+
+Реализовано построение графа зависимостей с учётом транзитивности.
+
+Основные возможности:
+
+- рекурсивный обход графа алгоритмом DFS;
+- получение зависимостей каждого обнаруженного пакета;
+- ограничение глубины обхода;
+- обнаружение циклических зависимостей;
+- обработка повторно встречающихся зависимостей;
+- загрузка тестового графа из JSON-файла;
+- вывод построенного графа и обнаруженных циклов.
+
+## Используемые технологии
+
+- Python 3
+- `argparse` — обработка аргументов командной строки;
+- `urllib` — HTTP-запросы;
+- `json` — обработка JSON;
+- `re` — проверка и извлечение названий пакетов;
+- `unittest` — автоматическое тестирование.
+
+Сторонние библиотеки и менеджеры пакетов для получения информации о зависимостях не используются.
+
+## Структура проекта
+
+```text
+scsub/
+├── src/
+│   ├── config/
+│   │   ├── __init__.py
+│   │   └── config.py
+│   ├── dependencies/
+│   │   ├── __init__.py
+│   │   ├── fetcher.py
+│   │   ├── graph.py
+│   │   └── test_repository.py
+│   └── main.py
+├── tests/
+│   ├── fixtures/
+│   │   └── repository.json
+│   ├── test_config.py
+│   ├── test_fetcher

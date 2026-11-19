@@ -3,7 +3,7 @@ import json
 import re
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
-
+from urllib.parse import quote, urlsplit, urlunsplit
 
 REQUEST_TIMEOUT = 10
 USER_AGENT = "DependencyVisualizer/1.0"
@@ -90,3 +90,48 @@ def get_direct_dependencies(repo_url):
     """Получает список прямых зависимостей пакета."""
     metadata = fetch_metadata(repo_url)
     return extract_direct_dependencies(metadata)
+
+
+def build_package_url(repo_url, package):
+    """Формирует URL метаданных указанного пакета."""
+    parsed_url = urlsplit(repo_url)
+    path_prefix, separator, suffix = parsed_url.path.rpartition("/")
+
+    if not separator or suffix != "json":
+        raise ValueError(
+            "Ожидается URL PyPI JSON API вида /pypi/package/json."
+        )
+
+    repository_prefix, separator, _ = path_prefix.rpartition("/")
+
+    if not separator:
+        raise ValueError("Некорректный URL репозитория PyPI.")
+
+    package_path = (
+        f"{repository_prefix}/{quote(package)}/json"
+    )
+
+    return urlunsplit((
+        parsed_url.scheme,
+        parsed_url.netloc,
+        package_path,
+        "",
+        "",
+    ))
+
+
+def get_package_dependencies(package, repo_url):
+    """Получает названия прямых зависимостей пакета."""
+    package_url = build_package_url(repo_url, package)
+    metadata = fetch_metadata(package_url)
+    requirements = extract_direct_dependencies(metadata)
+
+    dependencies = []
+
+    for requirement in requirements:
+        match = REQUIREMENT_PATTERN.match(requirement)
+
+        if match:
+            dependencies.append(match.group(1).lower())
+
+    return dependencies

@@ -2,11 +2,34 @@
 import sys
 
 from src.config.config import parse_config
-from src.dependencies.fetcher import get_direct_dependencies
+from src.dependencies.fetcher import get_package_dependencies
+from src.dependencies.graph import build_dependency_graph
+from src.dependencies.test_repository import load_test_repository
+
+
+def print_graph(graph):
+    """Выводит построенный граф зависимостей."""
+    print("\nГраф зависимостей:")
+
+    for package, dependencies in graph.items():
+        dependency_list = ", ".join(dependencies)
+        print(f"{package} -> {dependency_list or 'нет зависимостей'}")
+
+
+def print_cycles(cycles):
+    """Выводит найденные циклические зависимости."""
+    print("\nЦиклические зависимости:")
+
+    if not cycles:
+        print("Циклы не обнаружены.")
+        return
+
+    for cycle in cycles:
+        print(" -> ".join(cycle))
 
 
 def main():
-    """Запускает программу и выводит прямые зависимости пакета."""
+    """Запускает построение графа зависимостей."""
     config = parse_config()
 
     print("\n========== CONFIGURATION ==========")
@@ -19,20 +42,28 @@ def main():
     print("==================================")
 
     try:
-        dependencies = get_direct_dependencies(config.repo)
+        if config.test_mode:
+            repository = load_test_repository(config.repo)
+            dependency_provider = repository.get
+        else:
+            dependency_provider = lambda package: (
+                get_package_dependencies(package, config.repo)
+            )
+
+        graph, cycles = build_dependency_graph(
+            config.package,
+            dependency_provider,
+            config.max_depth,
+        )
+
     except ValueError as error:
-        print(f"\nОшибка получения зависимостей: {error}", file=sys.stderr)
+        print(f"\nОшибка: {error}", file=sys.stderr)
         return 1
 
-    print(f"\nПрямые зависимости пакета {config.package}:")
+    print_graph(graph)
+    print_cycles(cycles)
 
-    if not dependencies:
-        print("Прямые зависимости не найдены.")
-    else:
-        for dependency in dependencies:
-            print(f"- {dependency}")
-
-    print(f"\nВсего зависимостей: {len(dependencies)}")
+    print(f"\nВсего пакетов в графе: {len(graph)}")
 
     return 0
 
