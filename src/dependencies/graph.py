@@ -44,3 +44,16 @@ def build_dependency_graph(root_package, dependency_provider, max_depth):
     dfs(root_package, ROOT_DEPTH)
 
     return graph, cycles
+
+
+def invert_dependency_graph(graph):
+    """Строит граф обратных зависимостей."""
+    reverse_graph = {
+        package: [] for package in graph
+    }
+
+    for package, dependencies in graph.items():
+        for dependency in dependencies:
+            reverse_graph.setdefault(dependency, []).append(package)
+
+    return reverse_graph

@@ -62,7 +62,7 @@ def validate_depth(value):
 
     if depth < MIN_DEPTH:
         raise argparse.ArgumentTypeError(
-            "Глубина анализа должна быть не меньше 1."
+            f"Глубина анализа должна быть не меньше {MIN_DEPTH}."
         )
 
     return depth
@@ -94,7 +94,7 @@ def validate_repository_mode(repo, test_mode):
 def create_parser():
     """Создание парсера аргументов командной строки."""
     parser = argparse.ArgumentParser(
-        description="Dependency Visualizer - Stage 1"
+        description="Dependency Visualizer"
     )
 
     parser.add_argument(
@@ -136,6 +136,12 @@ def create_parser():
         type=validate_depth,
         default=DEFAULT_MAX_DEPTH,
         help="Максимальная глубина анализа"
+    )
+
+    parser.add_argument(
+        "--reverse",
+        action="store_true",
+        help="Вывод обратных зависимостей пакета"
     )
 
     return parser

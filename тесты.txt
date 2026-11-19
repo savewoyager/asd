@@ -1,3 +1,3 @@
-запуск программы:       run.bat --package A --repo tests/fixtures/repository.json --test-mode true --max-depth 10
-ограничение глубины:    run.bat --package A --repo tests/fixtures/repository.json --test-mode true --max-depth 1
-пакет без зависимостей: run.bat --package G --repo tests/fixtures/repository.json --test-mode true --max-depth 5
+Обратные зависимости пакета D: run.bat --package D --repo tests/fixtures/repository.json --test-mode true --reverse --max-depth 10
+Обратные зависимости пакета B: run.bat --package B --repo tests/fixtures/repository.json --test-mode true --reverse --max-depth 10
+пакет без зависимостей:        run.bat --package G --repo tests/fixtures/repository.json --test-mode true --reverse

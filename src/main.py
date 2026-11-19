@@ -3,7 +3,10 @@ import sys
 
 from src.config.config import parse_config
 from src.dependencies.fetcher import get_package_dependencies
-from src.dependencies.graph import build_dependency_graph
+from src.dependencies.graph import (
+    build_dependency_graph,
+    invert_dependency_graph,
+)
 from src.dependencies.test_repository import load_test_repository
 
 
@@ -28,10 +31,8 @@ def print_cycles(cycles):
         print(" -> ".join(cycle))
 
 
-def main():
-    """Запускает построение графа зависимостей."""
-    config = parse_config()
-
+def print_configuration(config):
+    """Выводит параметры запуска приложения."""
     print("\n========== CONFIGURATION ==========")
     print(f"package: {config.package}")
     print(f"repo: {config.repo}")
@@ -39,16 +40,43 @@ def main():
     print(f"output: {config.output}")
     print(f"ascii: {config.ascii}")
     print(f"max_depth: {config.max_depth}")
+    print(f"reverse: {config.reverse}")
     print("==================================")
 
+
+def create_dependency_provider(config):
+    """Создаёт источник зависимостей для обхода графа."""
+    if config.test_mode:
+        repository = load_test_repository(config.repo)
+
+        if config.reverse:
+            if config.package not in repository:
+                raise ValueError(
+                    f"Пакет {config.package} отсутствует в репозитории."
+                )
+
+            return invert_dependency_graph(repository).get
+
+        return repository.get
+
+    if config.reverse:
+        raise ValueError(
+            "Обратные зависимости доступны только в тестовом режиме."
+        )
+
+    return lambda package: get_package_dependencies(
+        package,
+        config.repo,
+    )
+
+
+def main():
+    """Запускает построение графа зависимостей."""
+    config = parse_config()
+    print_configuration(config)
+
     try:
-        if config.test_mode:
-            repository = load_test_repository(config.repo)
-            dependency_provider = repository.get
-        else:
-            dependency_provider = lambda package: (
-                get_package_dependencies(package, config.repo)
-            )
+        dependency_provider = create_dependency_provider(config)
 
         graph, cycles = build_dependency_graph(
             config.package,
@@ -59,6 +87,9 @@ def main():
     except ValueError as error:
         print(f"\nОшибка: {error}", file=sys.stderr)
         return 1
+
+    if config.reverse:
+        print("\nРежим: обратные зависимости")
 
     print_graph(graph)
     print_cycles(cycles)
