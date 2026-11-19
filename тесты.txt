@@ -1,3 +1,3 @@
-Обратные зависимости пакета D: run.bat --package D --repo tests/fixtures/repository.json --test-mode true --reverse --max-depth 10
-Обратные зависимости пакета B: run.bat --package B --repo tests/fixtures/repository.json --test-mode true --reverse --max-depth 10
-пакет без зависимостей:        run.bat --package G --repo tests/fixtures/repository.json --test-mode true --reverse
+Пакет A — граф с циклическими зависимостями: py -m src.main --package A --repo tests/fixtures/repository.json --test-mode true --ascii --max-depth 5 --output results/package_a.png
+Пакет C — общая зависимость D: 				 py -m src.main --package C --repo tests/fixtures/repository.json --test-mode true --ascii --max-depth 5 --output results/package_c.png
+Пакет G — пакет без зависимостей: 			 py -m src.main --package G --repo tests/fixtures/repository.json --test-mode true --ascii --max-depth 5 --output results/package_g.png
